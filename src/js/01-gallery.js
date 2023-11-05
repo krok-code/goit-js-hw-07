@@ -26,16 +26,19 @@ galleryList.addEventListener('click', (e) => {
   if (e.target.tagName === 'IMG') {
     const largeImageURL = e.target.dataset.source;
     const index = Number(e.target.dataset.index);
-    const lightbox = new basicLightbox.create(`
-      <img width="1400" height="900" src="${largeImageURL}">
+    const instance = basicLightbox.create(`
+      <img src="${largeImageURL}" width="800" height="600">
     `);
-    lightbox.show();
+    instance.show();
 
     // Додайте закриття модального вікна після натискання клавіші Escape
-    window.addEventListener('keydown', (e) => {
+    const onEscapeKeyPress = (e) => {
       if (e.key === 'Escape') {
-        lightbox.close();
+        instance.close();
+        window.removeEventListener('keydown', onEscapeKeyPress);
       }
-    });
+    };
+    
+    window.addEventListener('keydown', onEscapeKeyPress);
   }
 });
