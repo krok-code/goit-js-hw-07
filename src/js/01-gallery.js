@@ -1,44 +1,59 @@
 import { galleryItems } from './gallery-items.js';
 
-const galleryList = document.querySelector('.gallery');
-const galleryItemsHTML = galleryItems
-  .map(
-    (item, index) => `
-    <li class="gallery__item">
-      <a class="gallery__link" href="${item.original}">
-        <img
-          class="gallery__image"
-          src="${item.preview}"
-          data-source="${item.original}"
-          alt="${item.description}"
-          data-index="${index}"
-        />
-      </a>
-    </li>
-  `
-  )
-  .join('');
+function createGalleryItem(item) {
+    const li = document.createElement('li');
+    li.classList.add('gallery__item');
 
-galleryList.innerHTML = galleryItemsHTML;
+    const a = document.createElement('a');
+    a.classList.add('gallery__link');
+    a.href = item.original;
 
-galleryList.addEventListener('click', (e) => {
-  e.preventDefault();
-  if (e.target.tagName === 'IMG') {
-    const largeImageURL = e.target.dataset.source;
-    const index = Number(e.target.dataset.index);
-    const instance = basicLightbox.create(`
-      <img src="${largeImageURL}" width="800" height="600">
-    `);
-    instance.show();
+    const img = document.createElement('img');
+    img.classList.add('gallery__image');
+    img.src = item.preview;
+    img.alt = item.description;
 
-    // Додайте закриття модального вікна після натискання клавіші Escape
-    const onEscapeKeyPress = (e) => {
-      if (e.key === 'Escape') {
-        instance.close();
-        window.removeEventListener('keydown', onEscapeKeyPress);
-      }
-    };
-    
-    window.addEventListener('keydown', onEscapeKeyPress);
-  }
+    img.setAttribute('data-source', item.original);
+
+    a.appendChild(img);
+    li.appendChild(a);
+
+    return li;
+}
+
+const gallery = document.querySelector('.gallery');
+const lightbox = basicLightbox;
+
+galleryItems.forEach((item) => {
+    const galleryItem = createGalleryItem(item);
+    gallery.appendChild(galleryItem);
 });
+
+let isLightboxOpen = false;
+
+gallery.addEventListener('click', (event) => {
+    event.preventDefault();
+
+    if (event.target.tagName === 'IMG') {
+        const largeImageUrl = event.target.dataset.source;
+
+       
+        lightbox.create(`<img src="${largeImageUrl}">`).show();
+        isLightboxOpen = true;
+    }
+});
+
+// Додавання обробки натискання клавіші "Escape"
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && isLightboxOpen) {
+        // Очистити вміст модального вікна
+        const lightboxContent = document.querySelector('.basicLightbox');
+        if (lightboxContent) {
+            lightboxContent.innerHTML = '';
+        }
+        isLightboxOpen = false;
+    }
+});
+
+
+console.log(galleryItems);
